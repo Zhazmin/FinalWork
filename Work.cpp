@@ -22,6 +22,7 @@
 #define GAME_STATE_PLAYING 0
 #define GAME_STATE_WON 1
 #define GAME_STATE_LOST 2
+#define GAME_STATE_QUIT 3
 #define MAX_SNAKE_LEN (ROWS * COLS)
 // Provided enums
 // Enum for features on the game board
@@ -203,6 +204,9 @@ int main(void) {
                 }
                 print_board(board, snake_row, snake_col);
             }
+            else{
+                game_state = GAME_STATE_QUIT;
+            }
         }
     }
     if (game_state == GAME_STATE_WON) {
@@ -278,6 +282,25 @@ int snake_movement(
     
     // Handle reverse apple differently
     if (ate_reverse_apple) {
+        // Normal movement - always grow the snake
+        // Shift body segments to make room
+        for (int i = *snake_length; i > 0; i--) {
+            if (i < MAX_SNAKE_LEN) {
+                snake_body[i] = snake_body[i - 1];
+            }
+        }
+        
+        // Add new head position
+        snake_body[0].row = new_row;
+        snake_body[0].col = new_col;
+        *snake_row = new_row; 
+        *snake_col = new_col;
+        
+        // Always increase length
+        if (*snake_length < MAX_SNAKE_LEN) { 
+            (*snake_length)++; 
+        }
+
         // Clear old body from board
         for (int i = 0; i < *snake_length; i++) {
             if (is_position_valid(snake_body[i].row, snake_body[i].col)) {
